@@ -2,18 +2,22 @@ module Solver where
 
 import Data.List
 
+solve :: [[Int]] -> [[Int]]
 solve merchantVisits =
-	possibleMaps = generatePossibleMaps n
-	findValidMap possibleMaps merchantVisits
+    findValidMap possibleMaps merchantVisits
     where
-    	n = length head merchantVisits
+        n = length (head merchantVisits)
+        possibleMaps = generatePossibleMaps n
+        findValidMap (map:maps) visits
+            | isValidMap map visits = map
+            | otherwise = findValidMap maps visits
 
-findValidMap (map:maps) merchantVisits
-	| isValid map merchantVisits = map
-	| otherwise = findValidMap maps merchantVisits
-
--- TODO:
-generatePossibleMaps n = []
+generatePossibleMaps :: Int -> [[[Int]]]
+generatePossibleMaps n = concatMap permutations (choose (permutations [1..n]) []) where
+    choose [] result = if n == length result then [result] else []
+    choose (x:xs) result
+        | n == length result = [result]
+        | otherwise = choose xs (x:result) ++ choose xs result
 
 
 {- isValid [[4,1,3,2],[2,3,4,1],[3,2,1,4],[1,4,2,3]] [[1,3,2,2],[3,2,1,2],[2,2,1,3],[2,2,3,1]]
@@ -22,8 +26,8 @@ generatePossibleMaps n = []
 -- TODO:
 -- takes a board [[a]] and the merchant visits [[a]] and return
 --  a bool for whether the map is valid or not
-isValid :: (Num a, Ord a) => [[a]] -> [[a]] -> Bool
-isValid board merchantVisits = (validBoard board) && (validMerchants board merchantVisits)
+isValidMap :: (Num a, Ord a) => [[a]] -> [[a]] -> Bool
+isValidMap board merchantVisits = (validBoard board) && (validMerchants board merchantVisits)
 
 
 {- isValid   [ [1,2,3,4]
